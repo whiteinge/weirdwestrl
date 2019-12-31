@@ -1,0 +1,29 @@
+{
+  "name": "deadlandsrl",
+  "author": "",
+  "version": "1.0.0",
+  "license": "GPL-3",
+  "description": "",
+  "private": true,
+  "keywords": [],
+  "main": "src/index.js",
+  "homepage": "",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "lodash": "^4.17.15",
+    "react-blessed": "^0.6.2",
+    "rot-js": "^2.1.1",
+    "rx": "^4.1.0"
+  },
+  "optionalDependencies": {},
+  "devDependencies": {
+    "benchmark": "2.x.x",
+    "nexe": "^3.3.2",
+    "prettier": "1.x.x",
+    "tap-spec": "5.x.x",
+    "tape": "4.x.x"
+  },
+  "scripts": {
+    "test": "tape tests/**/*.js | tap-spec"
+  }
+}
