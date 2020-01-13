@@ -1,9 +1,13 @@
 (import
     chicken.format
+    chicken.port
     chicken.process.signal
-    ncurses
     srfi-12
-    srfi-18)
+    srfi-18
+    (prefix ncurses ncurses:))
+
+(define log-port (open-output-file "out.log"))
+(set-buffering-mode! log-port #:line)
 
 (define y 0)
 (define x 0)
@@ -14,46 +18,45 @@
 
 (define (draw)
     (let loop ()
-        (define scrnum (stdscr))
-        (set!-values (max_y max_x) (getmaxyx scrnum))
-        (clear)
-        (mvprintw y x "o")
-        (refresh)
+        (define scrnum (ncurses:stdscr))
+        (set!-values (max_y max_x) (ncurses:getmaxyx scrnum))
 
-        (set! next_x (+ x direction))
-
-        (cond
-            ((>= next_x max_x) (set! direction (* direction -1)))
-            ((< next_x 0) (set! direction (* direction -1)))
-            (else (set! x (+ x direction))))
+        (ncurses:clear)
+        (ncurses:mvprintw y x "@")
+        (ncurses:refresh)
 
         (thread-sleep! 0.1)
+
+        (case (ncurses:getch)
+            ((#\k) (set! y (- y 1)))
+            ((#\j) (set! y (+ y 1)))
+            ((#\l) (set! x (+ x 1)))
+            ((#\h) (set! x (- x 1)))
+            (else (display "DOH\n" log-port)))
+
         (loop)))
 
 (define (main)
     (set-signal-handler! signal/int (lambda (sig)
         (begin
-            (curs_set 1)
-            (endwin)
+            (ncurses:curs_set 1)
+            (ncurses:endwin)
             (display "Bye!\n")
             (exit 0))))
 
     (handle-exceptions exn
         (begin
-            (curs_set 1)
-            (endwin)
-            (display (format "XXX ~a, ~a, ~a, ~a" direction x next_x max_x))
-            (newline)
+            (ncurses:curs_set 1)
+            (ncurses:endwin)
             (display "Caught error: ")
             (display ((condition-property-accessor 'exn 'message "message unknown") exn))
             (newline)
             (print-call-chain))
-            ; (abort exn))
-        (initscr)
-        (noecho)
-        (curs_set 0)
+        (ncurses:initscr)
+        (ncurses:noecho)
+        (ncurses:curs_set 0)
         (draw)
-        (curs_set 1)
-        (endwin)))
+        (ncurses:curs_set 1)
+        (ncurses:endwin)))
 
 (main)
