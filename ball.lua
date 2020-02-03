@@ -1,17 +1,20 @@
-local curses = require "curses"
+local ncurses = require "ncurses"
 
-require "socket"
+local ffi = require "ffi"
 
-function sleep(sec)
-    socket.select(nil, nil, sec)
+ffi.cdef[[
+    void Sleep(int ms);
+    int poll(struct pollfd *fds,unsigned long nfds,int timeout);
+]]
+sleep = function(millisec)
+    ffi.C.poll(nil,0,millisec)
 end
 
 local function main ()
-    local stdscr = curses.initscr ()
+    local stdscr = ncurses.initscr ()
 
-    curses.cbreak ()
-    curses.echo (false)
-    curses.curs_set(0)
+    ncurses.noecho ()
+    ncurses.curs_set(0)
 
     x = 0
     y = 0
@@ -20,12 +23,12 @@ local function main ()
 
     while(true)
         do
-            max_y, max_x = stdscr:getmaxyx()
-            stdscr:clear ()
-            stdscr:mvaddstr(y, x, "o")
-            stdscr:refresh()
+            max_x = ncurses.getmaxx(ncurses.stdscr)
+            ncurses.clear ()
+            ncurses.mvaddstr(y, x, "o")
+            ncurses.refresh()
 
-            sleep(0.05)
+            sleep(30)
 
             next_x = x + direction
 
@@ -38,7 +41,7 @@ local function main ()
 end
 
 local function err (err)
-    curses.endwin ()
+    ncurses.endwin ()
     print "Caught an error:"
     print (debug.traceback (err, 2))
     os.exit (2)
