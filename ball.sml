@@ -1,3 +1,5 @@
+(* mlton -link-opt '-lncurses' ./ball.mlb *)
+
 val clear = _import "clear" : unit -> unit;
 val curs_set = _import "curs_set" : bool -> unit;
 val endwin = _import "endwin" : unit -> unit;
